@@ -23,7 +23,7 @@ public class StudentJedis {
         return true;
     }
 
-    public List<Student> listStudent(Integer pageSize,Integer pageNum) throws IOException {
+    public List<Student> listStudent(Integer pageSize, Integer pageNum) throws IOException {
         List<Student> students = new ArrayList<>();
         Set set = jedis.zrevrangeByScore("student", 100, 0, pageSize * (pageNum - 1), pageSize * pageNum);
         for (Object obj : set) {
@@ -31,6 +31,22 @@ public class StudentJedis {
             students.add(student);
         }
         return students;
+    }
+
+    public Boolean delete(Student student) throws JsonProcessingException {
+        jedis.zrem("student", om.writeValueAsString(student));
+        return true;
+    }
+
+    public Student queryStudentByIdAndScore(String id, Integer avgScore) throws IOException {
+        Set set = jedis.zrange("student", avgScore, avgScore);
+        for (Object obj : set) {
+            Student student = om.readValue(obj.toString(), Student.class);
+            if (student.getId().equals(id)) {
+                return student;
+            }
+        }
+        return null;
     }
 
 }
