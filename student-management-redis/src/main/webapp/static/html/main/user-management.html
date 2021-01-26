@@ -10,111 +10,50 @@
 <script type="text/javascript" src="../../js/bootstrap_3.3.0/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="../../js/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
 <script type="text/javascript" src="../../js/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
-
-
+<script type="text/javascript" src="../../js/laydate/laydate.js"></script>
 
 <script type="text/javascript">
-
 	$(function () {
 		getForm();
-		$("#selectBtn").click(function () {
-			setHidden();
-			getForm();
-		});
-		$("#resetBtn").click(function () {
-			resetQuery();
-			getForm();
-		});
 		/**
-		 * 当点击添加用户按钮时将添加表单清空，填充省份表单，然后弹出添加模态框
-		 * 提交参数
-		 * name
-		 * password
-		 * realName
-		 * phone
-		 * email
-		 * cityId
-		 * address
-		 * hobbies
+		 * 上传数据
 		 */
-		$("#addUser").click(function () {
+		$("#addStudent").click(function () {
 			$("#add-name").val("");
-			$("#add-password").val("");
-			$("#add-realName").val("");
-			$("#add-phone").val("");
-			$("#email").val("");
-			$("input[name='add-hobby']:checked").prop("checked", false);
-			$.ajax({
-				data: {
-					type: "province"
-				},
-				type: "get",
-				url: "/MyBookstore/provinces",
-				success(data) {
-					$("#add-provinces").empty();
-					$("#add-provinces").append("<option value=\"\">省份</option>")
-					$.each($.parseJSON(data),function (i, v) {
-						$("#add-provinces").append("<option id='province'  value=" + v.id + " >" + v.name +"</option>")
-					});
-				}
-			})
-			$("#add-cities").empty();
-			$("#add-cities").append("<option value=\"\">城市</option>")
-			$("#addUserModal").modal("show");
+			$("#add-description").val("");
+			$("#add-avgScore").val("");
+			laydate.render({
+				elem: '#add-date'
+				, value: '2020-1-27'
+			});
+			$("#addStudentModal").modal("show");
 
-		});
-		/**
-		 * 当省份改变的时候，改变对应的城市
-		 * */
-		$("#add-provinces").change(function (data) {
-			var provinceId = data.target.value;
-			$.ajax({
-				data: {
-					type: "city",
-					provinceId: provinceId
-				},
-				type: "get",
-				url: "/MyBookstore/provinces",
-				success(data) {
-					$("#add-cities").empty();
-					$.each($.parseJSON(data),function (i, v) {
-						$("#add-cities").append("<option id='city'  value=" + v.id + " >" + v.city +"</option>")
-					});
-				}
-			})
 		});
 		/**
 		 * 信息填写完毕，点击提交进行表单验证，验证成功提交数据
+		 * name: 刘凡
+		 description: xxx
+		 avgScore: 85
+		 birthday: 2020-01-27
 		 */
 		$("#add-submitBtn").click(function () {
-			if (addFormCheck()) {
-				let hobbies = "";
-				$.each($("input[name='add-hobby']:checked"), function (i, v) {
-					hobbies = hobbies + v.value;
-					console.log($("input[name='add-hobby']:checked").length);
-					if (i < $("input[name='add-hobby']:checked").length - 1) {
-						hobbies = hobbies + ",";
-					}
-				});
+			if (true) {
 				$.ajax({
-					url: "/MyBookstore/register",
+					url: "/student_management/studentManagement",
 					type: "post",
 					data: {
+						type: "save",
 						name: $("#add-name").val(),
-						password: $("#add-password").val(),
-						realName: $("#add-realName").val(),
-						phone: $("#add-phone").val(),
-						email: $("#add-email").val(),
-						cityId: $("#add-cities").val(),
-						address: $("#add-address").val(),
-						hobbies: hobbies
+						description: $("#add-description").val(),
+						avgScore: $("#add-avgScore").val(),
+						birthday:$("#add-date").val()
 					},
 					success(data) {
 						if ($.parseJSON(data)) {
-							alert("账号添加成功");
+							alert("学生添加成功");
 							$("#addUserModal").modal("hide");
 						} else {
-							alert("账号已经存在");
+							alert("学生已经存在");
 						}
 						getForm();
 					}
@@ -126,82 +65,11 @@
 		/**
 		 * 添加表单验证方法，验证成功返回true
 		 * */
-		function addFormCheck() {
-			let flag = true;
-			if (($("#add-name").val()) == null) {
-				alert("用户名不能为空");
-				flag = false;
-			}
-			let isNameTrue = /^[a-zA-Z0-9]{1,}$/;
-			if (!isNameTrue.test($("#add-name").val())) {
-				alert("用户名只能由字母和数字组成");
-				flag = false;
-			}
-
-			if (($("#add-password").val()) == null) {
-				alert("密码不能为空");
-				flag = false;
-			}
-			let isPasswordTrue = /^(?=.*?[A-Za-z])(?=.*?[0-9]).{8,}$/;
-			if (!isPasswordTrue.test($("#add-password").val())) {
-				alert("密码大于8位，且必须包含大小写字母和数字");
-				flag = false;
-			}
-			if (($("#add-realName").val()) == null||($("#add-realName").val()) == "") {
-				alert("真实姓名不能为空");
-				flag = false;
-			}
-			let isRealNameTrue = /^[\u4e00-\u9fa5]{0,}$/;
-			if (!isRealNameTrue.test($("#add-realName").val())) {
-				alert("请输入真实姓名");
-				flag = false;
-			}
-
-			if (($("#add-phone").val()) == null) {
-				alert("手机号不能为空")
-				flag = false;
-			}
-			let isPhoneTrue = /^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/;
-			if (!isPhoneTrue.test($("#add-phone").val())) {
-				alert("请输入有效的手机号");
-				flag = false;
-			}
-
-			if (($("#add-email").val()) == null) {
-				alert("邮箱不能为空")
-				flag = false;
-			}
-			let isEmailTrue = /^([A-Za-z0-9_\-\.\u4e00-\u9fa5])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,8})/;
-			if (!isEmailTrue.test($("#add-email").val())) {
-				alert("邮箱格式错误");
-				flag = false;
-			}
-
-			if ($("#add-address").val() == null) {
-				alert("请输入地址");
-				flag = false;
-			}
-
-			if ($("input[name='add-hobby']:checked").length < 2) {
-				alert("兴趣爱好至少两个");
-				flag = false;
-			}
-			return flag;
-		}
 
 		/**
 		 * 当点击修改用户按钮时将获取用户信息进行回响，填充表单，然后弹出修改模态框
-		 * 提交参数
-		 * name
-		 * password
-		 * realName
-		 * phone
-		 * email
-		 * cityId
-		 * address
-		 * hobbies
 		 */
-		$("#editUser").click(function () {
+		$("#editStudent").click(function () {
 			if ($("input[name=check]:checked").length == 0) {
 				alert("请选择要修改的数据");
 			} else if ($("input[name=check]:checked").length != 1) {
@@ -213,117 +81,60 @@
 				$.ajax({
 					data: {
 						type: "queryById",
-						id: $("input[name=check]:checked").val()
+						id: $("input[name=check]:checked").val(),
+						pageSize: $("#currentPageSize").val(),
+						pageNum: $("#currentPage").val()
 					},
 					async: false,
-					url: "/MyBookstore/userManagement",
-					type: "post",
+					url: "/student_management/studentManagement",
+					type: "get",
 					/*
-					* 返回这条记录的详细信息
-					* data：user：user
-					* 		provinceId
-					* 		provinces：list<province>
-					*		cities: list<city>(省份id相同的所有city)
+					*
 					* */
 					success(data) {
-						let obj = $.parseJSON(data);
-						$("#edit-id").val(obj.user.id);
-						$("#edit-name").val(obj.user.tbBookstoreUserName);
-						$("#edit-password").val(obj.user.tbBookstoreUserPassword);
-						$("#edit-realName").val(obj.user.tbBookstoreUserRealName);
-						$("#edit-phone").val(obj.user.tbBookstoreUserPhone);
-						$("#edit-email").val(obj.user.tbBookstoreUserEmail);
-						$("#edit-address").val(obj.user.tbBookstoreUserAddress);
-
-						/*
-						* 将省份和城市的信息进行填充然后选择省份id和城市id为指定值得下拉框选中
-						* */
-						$("#edit-provinces").empty();
-						$("#edit-provinces").append("<option value=\"\">省份</option>")
-						$.each(obj.provinces,function (i, v) {
-							$("#edit-provinces").append("<option id='province'  value=" + v.id + " >" + v.name +"</option>")
+						$("#edit-id").val();
+						$("#edit-name").val();
+						$("#edit-description").val();
+						$("#edit-avgScore").val();
+						laydate.render({
+							elem: '#edit-date',
+							value: ''
 						});
-
-						let currentProvinceId = obj.provinceId;
-						$(`#edit-provinces option[value=${currentProvinceId}]`).prop("selected",true);
-
-						$("#edit-cities").empty();
-						$.each(obj.cities,function (i, v) {
-							$("#edit-cities").append("<option id='city'  value=" + v.id + " >" + v.city +"</option>")
-						});
-
-						let currentCityId = obj.user.tbBookstoreUserCityId;
-						$(`#edit-cities option[value=${currentCityId}]`).prop("selected",true);
-
-
-						$(":checkbox[name='edit-hobby']").prop("checked",false);
-						var hobbies = new Array();
-						hobbies = obj.user.tbBookstoreUserHobby.split(",");
-						for (var i = 0; i < hobbies.length; i++) {
-							$(":checkbox[value='"+hobbies[i]+"']").prop("checked",true);
-						}
 					}
 				})
-			}
-			$("#editUserModal").modal("show");
+				$("#editStudentModal").modal("show");
 
-		});
-		/**
-		 * 当省份改变的时候，改变对应的城市
-		 * */
-		$("#edit-provinces").change(function (data) {
-			var provinceId = data.target.value;
-			$.ajax({
-				data: {
-					type: "city",
-					provinceId: provinceId
-				},
-				type: "get",
-				url: "/MyBookstore/provinces",
-				success(data) {
-					$("#edit-cities").empty();
-					$.each($.parseJSON(data),function (i, v) {
-						$("#edit-cities").append("<option id='city'  value=" + v.id + " >" + v.city +"</option>")
-					});
-				}
-			})
+			}
+
+
+
 		});
 		/**
 		 * 信息填写完毕，点击提交进行表单验证，验证成功提交数据
 		 */
 		$("#edit-submitBtn").click(function () {
-			if (editFormCheck()) {
-				let hobbies = "";
-				$.each($("input[name='edit-hobby']:checked"), function (i, v) {
-					hobbies = hobbies + v.value;
-					console.log($("input[name='edit-hobby']:checked").length);
-					if (i < $("input[name='edit-hobby']:checked").length - 1) {
-						hobbies = hobbies + ",";
-					}
-				});
+			if (true) {
 				$.ajax({
-					url: "/MyBookstore/userManagement",
+					url: "/student_management/studentManagement",
 					type: "post",
 					data: {
 						type: "update",
-						id: $("input[name=check]:checked").val(),
+						id: $("#edit-id").val(),
 						name: $("#edit-name").val(),
-						password: $("#edit-password").val(),
-						realName: $("#edit-realName").val(),
-						phone: $("#edit-phone").val(),
-						email: $("#edit-email").val(),
-						cityId: $("#edit-cities").val(),
-						address: $("#edit-address").val(),
-						hobbies: hobbies
+						description: $("#edit-description").val(),
+						avgScore: $("#edit-avgScore").val(),
+						birthday: $("#edit-date").val(),
+						pageSize: $("#currentPageSize").val(),
+						pageNum: $("#currentPage").val()
 					},
 					success(data) {
 						if ($.parseJSON(data)) {
-							alert("修改成功");
-							$("#editUserModal").modal("hide");
-							getFromByPage();
+							alert("学生修改成功");
+							$("#addUserModal").modal("hide");
 						} else {
-							alert("修改失败");
+							alert("学生修改失败");
 						}
+						getForm();
 					}
 				});
 			} else {
@@ -331,7 +142,7 @@
 			}
 		});
 
-		$("#deleteUser").click(function () {
+		$("#deleteStudent").click(function () {
 			var deleteList = "";
 			if ($("input[name=check]:checked").length == 0) {
 				alert("请选择删除的数据");
@@ -347,12 +158,14 @@
 			$.ajax({
 				data: {
 					type: "delete",
-					deleteList: deleteList
+					deleteList: deleteList,
+					pageSize: $("#currentPageSize").val(),
+					pageNum: $("#currentPage").val()
 				},
-				url: "/MyBookstore/userManagement",
+				url: "/student_management/studentManagement",
 				type: "post",
 				success() {
-					alert("删除用户成功");
+					alert("删除学生成功");
 					getForm();
 					$("#selectAll").prop("checked", false);
 				}
@@ -382,8 +195,6 @@
 			getFromByPage();
 		})
 		$("#page").on("click","#next",function () {
-			console.log($("#currentPage").val() +"and"+ $("#allPage").val())
-			console.log();
 			if (parseInt($("#currentPage").val()) < parseInt($("#allPage").val())) {
 				$("#currentPage").val(parseInt($("#currentPage").val()) + 1);
 			}
@@ -394,102 +205,9 @@
 			$("#currentPage").val(1);
 			getFromByPage();
 		})
-		$("#userManagement").click(function () {
-			window.location.href = "user-management.html";
-		});
-		$("#bookManagement").click(function () {
-			window.location.href = "book-management.html";
-		})
-
-		$("#exit").click(function () {
-			$.ajax({
-				data: {
-					type: "exit"
-				},
-				url: "/MyBookstore/userManagement",
-				type: "post",
-				success(data) {
-					if ($.parseJSON(data)){
-						window.location.href = "../login.html";
-					}
-				}
-			});
-		})
-		/**
-		 * 添加表单验证方法，验证成功返回true
-		 * */
-		function editFormCheck() {
-			let flag = true;
-			if (($("#edit-name").val()) == null) {
-				alert("用户名不能为空");
-				flag = false;
-			}
-			let isNameTrue = /^[a-zA-Z0-9]{1,}$/;
-			if (!isNameTrue.test($("#edit-name").val())) {
-				alert("用户名只能由字母和数字组成");
-				flag = false;
-			}
-
-			if (($("#edit-password").val()) == null) {
-				alert("密码不能为空");
-				flag = false;
-			}
-			let isPasswordTrue = /^(?=.*?[A-Za-z])(?=.*?[0-9]).{8,}$/;
-			if (!isPasswordTrue.test($("#edit-password").val())) {
-				alert("密码大于8位，且必须包含大小写字母和数字");
-				flag = false;
-			}
-			if (($("#edit-realName").val()) == null||($("#edit-realName").val()) == "") {
-				alert("真实姓名不能为空");
-				flag = false;
-			}
-			let isRealNameTrue = /^[\u4e00-\u9fa5]{0,}$/;
-			if (!isRealNameTrue.test($("#edit-realName").val())) {
-				alert("请输入真实姓名");
-				flag = false;
-			}
-
-			if (($("#edit-phone").val()) == null) {
-				alert("手机号不能为空")
-				flag = false;
-			}
-			let isPhoneTrue = /^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/;
-			if (!isPhoneTrue.test($("#edit-phone").val())) {
-				alert("请输入有效的手机号");
-				flag = false;
-			}
-
-			if (($("#edit-email").val()) == null) {
-				alert("邮箱不能为空")
-				flag = false;
-			}
-			let isEmailTrue = /^([A-Za-z0-9_\-\.\u4e00-\u9fa5])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,8})/;
-			if (!isEmailTrue.test($("#edit-email").val())) {
-				alert("邮箱格式错误");
-				flag = false;
-			}
-
-			if ($("#edit-address").val() == null) {
-				alert("请输入地址");
-				flag = false;
-			}
-
-			if ($("input[name='edit-hobby']:checked").length < 2) {
-				alert("兴趣爱好至少两个");
-				flag = false;
-			}
-			return flag;
-		}
-		function setHidden() {
-			$("#userId").val($("#selectUserId").val())
-		}
-		function resetQuery() {
-			$("#userId").val("");
-			$("#selectUserId").val("");
-		}
 		function getForm() {
 			$("#currentPage").val(1);
-			$("#currentPageSize option[value=3]").prop("selected", true);
+			$("#currentPageSize option[value=10]").prop("selected", true);
 			ajaxGetForm();
 		}
 		function getFromByPage() {
@@ -498,28 +216,18 @@
 		function ajaxGetForm() {
 			$.ajax({
 				data: {
-					type: "queryDetail",
-					id: $("#userId").val(),
+					type: "listDetail",
 					pageNum: $("#currentPage").val(),
 					pageSize: $("#currentPageSize").val()
 				},
-				type: "post",
-				url: "/MyBookstore/userManagement",
+				type: "get",
+				url: "/student_management/studentManagement",
 				success(data) {
 					$("#detailTbl").empty();
 					$.each($.parseJSON(data).data, function (i, n) {
-						if (n.position == undefined) {
-							n.position = "暂无职位";
-						}
 						$("#detailTbl").append("<tr class=\"active\">\n" +
 								"<td><input name='check' value='" + n.id + "' type=\"checkbox\" /></td>\n" +
 								"<td>" + n.id + "</td>\n" +
-								"<td>" + n.tbBookstoreUserName + "</td>\n" +
-								"<td>" + n.tbBookstoreUserRealName + "</td>\n" +
-								"<td>" + n.tbBookstoreUserPhone + "</td>\n" +
-								"<td>" + n.tbBookstoreUserProvinceAndCity + "</td>\n" +
-								"<td>" + n.tbBookstoreUserAddress + "</td>\n" +
-								"<td>" + n.tbBookstoreUserHobby + "</td>\n" +
 								"<td>" + n.tbBookstoreUserCreateTime + "</td>\n" +
 								"</tr>");
 					});
@@ -555,239 +263,127 @@
 			let index = $("#currentPage").val() - 1;
 			$(`#page li[value=${index}]`).addClass("active");
 		}
-
-
 	})
+
 </script>
 </head>
 <body>
-
-	<!-- 创建市场活动的模态窗口 -->
-	<div class="modal fade" id="addUserModal" role="dialog">
-		<div class="modal-dialog" role="document" style="width: 50%;">
+	<!-- 添加学生信息的模态窗口 -->
+	<div class="modal fade" id="addStudentModal" role="dialog">
+		<div class="modal-dialog" role="document" style="width: 45%;">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal">
 						<span aria-hidden="true">×</span>
 					</button>
-					<h4 class="modal-title" id="myModalLabel1">创建用户</h4>
+					<h4 class="modal-title" id="myModalLabel1">添加学生</h4>
 				</div>
 				<div class="modal-body">
-					<div style="height: 500px">
+					<div style="height: 330px">
 						<div style="position: relative;top: 5%;left: 50%;margin-left: -150px">
 							<form action="/register" class="form-horizontal" role="form" onsubmit="return false">
 								<div class="form-group">
-									<div class="input-group" style="width: 350px">
-										<span class="input-group-addon" > 名称</span>
-										<input type="text" id="add-name" class="form-control" placeholder="Username" aria-describedby="sizing-addon2" name="username">
-									</div>
-									<!--密码输入框-->
+									<!--姓名输入框-->
 									<div class="input-group" style="width: 350px;position: relative;top: 10px">
-										<span class="input-group-addon"> 密码</span>
-										<input type="text" id="add-password" class="form-control" placeholder="Password" aria-describedby="sizing-addon2" name="password">
+										<span class="input-group-addon"> 学生姓名</span>
+										<input type="text" id="add-name" class="form-control" placeholder="Name" aria-describedby="sizing-addon2" name="password">
 									</div>
-									<!--真实姓名输入框-->
+									<!--备注输入框-->
 									<div class="input-group" style="width: 350px;position: relative;top: 20px">
-										<span class="input-group-addon" > 姓名</span>
-										<input type="text" id="add-realName" class="form-control" placeholder="RealName" aria-describedby="sizing-addon2" name="username">
+										<span class="input-group-addon" > 学生备注</span>
+										<input type="text" id="add-description" class="form-control" placeholder="Description" aria-describedby="sizing-addon2" name="username">
 									</div>
-									<!--手机号输入框-->
-									<div class="input-group" style="width: 350px;position: relative;top: 30px">
-										<span class="input-group-addon" > 手机</span>
-										<input type="text" id="add-phone" class="form-control" placeholder="PhoneNumber" aria-describedby="sizing-addon2" name="username">
+									<!--平均分输入框-->
+									<div class="input-group" style="width: 350px; position: relative; top: 30px">
+										<span class="input-group-addon"> 学生平均分</span>
+										<input type="text" id="add-avgScore" class="form-control" placeholder="AvgScore" aria-describedby="sizing-addon2" name="email">
 									</div>
-									<!--邮箱输入框-->
+									<!--生日输入框-->
 									<div class="input-group" style="width: 350px; position: relative; top: 40px">
-										<span class="input-group-addon"> 邮箱</span>
-										<input type="text" id="add-email" class="form-control" placeholder="E-mail" aria-describedby="sizing-addon2" name="email">
-									</div>
-									<!--省份下拉框-->
-									<div class="btn-group btn-group-lg" style="width: 175px; position: relative; top: 50px">
-										<select id="add-provinces" class="selectpicker show-tick form-control" data-live-search="true" name="province" >
-											<option value="">省份</option>
-										</select>
-									</div>
-									<!--城市下拉框-->
-									<div class="btn-group btn-group-lg" style="width: 175px; position: relative; top: 50px">
-										<select id="add-cities" class="selectpicker show-tick form-control" data-live-search="true" name="city" >
-											<option value="">城市</option>
-										</select>
-									</div>
-									<!--地址输入框-->
-									<div class="input-group" style="width: 350px;position: relative; top: 60px">
-										<span class="input-group-addon"> 地址</span>
-										<input type="text" id="add-address" class="form-control" placeholder="Address" aria-describedby="sizing-addon2" name="email">
-									</div>
-								</div>
-								<div class="form-group">
-									<div style="width: 350px;height: 34px;position: relative; top: 50px">
-										<label class="input-group-addon" style="width: 53px">爱好</label>
-
-									</div>
-
-									<div class="checkbox" style="width: 350px; position: relative;left: 90px;top: 10px">
-										<label>
-											<input name="add-hobby" type="checkbox" value="唱歌">唱歌
-										</label>
-										<label>
-											<input name="add-hobby" type="checkbox" value="跳舞">跳舞
-										</label>
-										<label>
-											<input name="add-hobby" type="checkbox" value="打篮球">打篮球
-										</label>
-										<label>
-											<input name="add-hobby" type="checkbox" value="看书">看书
-										</label>
+										<span class="input-group-addon"> 学生生日</span>
+										<input type="text" id="add-date" readonly="readonly" class="form-control" placeholder="Birthday" aria-describedby="sizing-addon2" name="email">
 									</div>
 
 								</div>
 								<div class="form-group">
+									<!--提交-->
 									<button type="button" id="add-submitBtn" class="btn btn-primary btn-lg btn-block"  style="width: 350px; position: relative;top: 55px;">提交</button>
 								</div>
-
-
 							</form>
 						</div>
 					</div>
-
-
-
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<!-- 修改市场活动的模态窗口 -->
-	<div class="modal fade" id="editUserModal" role="dialog">
-		<div class="modal-dialog" role="document" style="width: 50%;">
+	<!-- 修改学生信息的模态窗口 -->
+	<div class="modal fade" id="editStudentModal" role="dialog">
+		<div class="modal-dialog" role="document" style="width: 45%;">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal">
 						<span aria-hidden="true">×</span>
 					</button>
-					<h4 class="modal-title" id="myModalLabel2">创建用户</h4>
+					<h4 class="modal-title" id="myModalLabel2">修改学生</h4>
 				</div>
 				<div class="modal-body">
-					<div style="height: 500px">
+					<div style="height: 330px">
 						<div style="position: relative;top: 5%;left: 50%;margin-left: -150px">
 							<form action="/register" class="form-horizontal" role="form" onsubmit="return false">
 								<div class="form-group">
-									<div class="input-group" style="width: 350px">
-										<input type="hidden" id="edit-id">
-										<span class="input-group-addon" > 名称</span>
-										<input type="text" id="edit-name" class="form-control" placeholder="Username" aria-describedby="sizing-addon2" name="username">
-									</div>
-									<!--密码输入框-->
+									<!--保存id-->
+									<input type="hidden" id="edit-id">
+									<!--姓名输入框-->
 									<div class="input-group" style="width: 350px;position: relative;top: 10px">
-										<span class="input-group-addon"> 密码</span>
-										<input type="text" id="edit-password" class="form-control" placeholder="Password" aria-describedby="sizing-addon2" name="password">
+										<span class="input-group-addon"> 学生姓名</span>
+										<input type="text" id="edit-name" class="form-control" placeholder="Name" aria-describedby="sizing-addon2" name="password">
 									</div>
-									<!--真实姓名输入框-->
+									<!--备注输入框-->
 									<div class="input-group" style="width: 350px;position: relative;top: 20px">
-										<span class="input-group-addon" > 姓名</span>
-										<input type="text" id="edit-realName" class="form-control" placeholder="RealName" aria-describedby="sizing-addon2" name="username">
+										<span class="input-group-addon" > 学生备注</span>
+										<input type="text" id="edit-description" class="form-control" placeholder="Description" aria-describedby="sizing-addon2" name="username">
 									</div>
-									<!--手机号输入框-->
-									<div class="input-group" style="width: 350px;position: relative;top: 30px">
-										<span class="input-group-addon" > 手机</span>
-										<input type="text" id="edit-phone" class="form-control" placeholder="PhoneNumber" aria-describedby="sizing-addon2" name="username">
+									<!--平均分输入框-->
+									<div class="input-group" style="width: 350px; position: relative; top: 30px">
+										<span class="input-group-addon"> 学生平均分</span>
+										<input type="text" id="edit-avgScore" class="form-control" placeholder="AvgScore" aria-describedby="sizing-addon2" name="email">
 									</div>
-									<!--邮箱输入框-->
+									<!--生日输入框-->
 									<div class="input-group" style="width: 350px; position: relative; top: 40px">
-										<span class="input-group-addon"> 邮箱</span>
-										<input type="text" id="edit-email" class="form-control" placeholder="E-mail" aria-describedby="sizing-addon2" name="email">
-									</div>
-									<!--省份下拉框-->
-									<div class="btn-group btn-group-lg" style="width: 175px; position: relative; top: 50px">
-										<select id="edit-provinces" class="selectpicker show-tick form-control" data-live-search="true" name="province" >
-											<option value="">省份</option>
-										</select>
-									</div>
-									<!--城市下拉框-->
-									<div class="btn-group btn-group-lg" style="width: 175px; position: relative; top: 50px">
-										<select id="edit-cities" class="selectpicker show-tick form-control" data-live-search="true" name="city" >
-											<option value="">城市</option>
-										</select>
-									</div>
-									<!--地址输入框-->
-									<div class="input-group" style="width: 350px;position: relative; top: 60px">
-										<span class="input-group-addon"> 地址</span>
-										<input type="text" id="edit-address" class="form-control" placeholder="Address" aria-describedby="sizing-addon2" name="email">
-									</div>
-								</div>
-								<div class="form-group">
-									<div style="width: 350px;height: 34px;position: relative; top: 50px">
-										<label class="input-group-addon" style="width: 53px">爱好</label>
-
-									</div>
-
-									<div class="checkbox" style="width: 350px; position: relative;left: 90px;top: 10px">
-										<label>
-											<input name="edit-hobby" type="checkbox" value="唱歌">唱歌
-										</label>
-										<label>
-											<input name="edit-hobby" type="checkbox" value="跳舞">跳舞
-										</label>
-										<label>
-											<input name="edit-hobby" type="checkbox" value="打篮球">打篮球
-										</label>
-										<label>
-											<input name="edit-hobby" type="checkbox" value="看书">看书
-										</label>
+										<span class="input-group-addon"> 学生生日</span>
+										<input type="text" id="edit-date" readonly="readonly" class="form-control" placeholder="Birthday" aria-describedby="sizing-addon2" name="email">
 									</div>
 
 								</div>
 								<div class="form-group">
+									<!--提交-->
 									<button type="button" id="edit-submitBtn" class="btn btn-primary btn-lg btn-block"  style="width: 350px; position: relative;top: 55px;">提交</button>
 								</div>
-
-
 							</form>
 						</div>
 					</div>
-
-
-
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<ul class="nav nav-tabs" >
-		<li role="presentation" class="active" id="userManagement"><a href="#">用户管理</a></li>
-		<li role="presentation" id="bookManagement"><a href="#">图书管理</a></li>
-		<li role="presentation" id="exit"><a href="#">退出</a></li>
-	</ul>
-	
 	<div>
 		<div style="position: relative; left: 10px; top: -10px;">
 			<div class="page-header">
-				<h3>用户列表</h3>
+				<h3>学生列表</h3>
 			</div>
 		</div>
 	</div>
 	<div style="position: relative; top: -20px; left: 0px; width: 100%; height: 100%;">
 		<div style="width: 100%; position: absolute;top: 5px; left: 10px;">
-			<div class="btn-toolbar" role="toolbar" style="height: 80px;">
-				<form class="form-inline" role="form" style="position: relative;top: 8%; left: 5px;">
-				  <div class="form-group">
-				    <div class="input-group">
-				      <div class="input-group-addon">用户id</div>
-				      <input id="userId" type="hidden">
-				      <input id="selectUserId" class="form-control" type="text">
-				    </div>
-				  </div>
-				  	<button id="selectBtn" type="button" class="btn btn-default">查询</button>
-					<button id="resetBtn" type="button" class="btn btn-default">重置</button>
-				</form>
-			</div>
 			<div class="btn-toolbar" role="toolbar" style="background-color: #F7F7F7; height: 50px; position: relative;top: 5px;">
 				<div class="btn-group" style="position: relative; top: 18%;">
-				  <button type="button" id="addUser" class="btn btn-primary" data-toggle="modal"><span class="glyphicon glyphicon-plus"></span> 创建</button>
-				  <button type="button" id="editUser" class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
-				  <button type="button" id="deleteUser" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+				  <button type="button" id="addStudent" class="btn btn-primary" data-toggle="modal"><span class="glyphicon glyphicon-plus"></span> 创建</button>
+				  <button type="button" id="editStudent" class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
+				  <button type="button" id="deleteStudent" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
-				
+
 			</div>
 
 			<!--详情表格-->
@@ -796,14 +392,11 @@
 					<thead>
 						<tr style="color: #B3B3B3;">
 							<td><input id="selectAll" type="checkbox" /></td>
-							<td>id</td>
-							<td>用户名</td>
-							<td>真实姓名</td>
-							<td>手机号</td>
-                            <td>所在城市</td>
-                            <td>家庭地址</td>
-                            <td>星期爱好</td>
-							<td>创建时间</td>
+							<td>学生id</td>
+							<td>学生姓名</td>
+							<td>学生生日</td>
+							<td>学生备注</td>
+                            <td>学生平均分</td>
 						</tr>
 					</thead>
 					<tbody id="detailTbl">
@@ -811,7 +404,7 @@
 				</table>
 			</div>
 
-			<!--分页以后再做-->
+			<!--分页-->
 			<nav aria-label="Page navigation">
 				<div style="width: 300px">
 					<input type="hidden" id="currentPage" value="1">
@@ -820,9 +413,9 @@
 						每页
 						<select id="pageSizes" data-live-search="true" name="page" >
 							<option value="1">1</option>
-							<option value="3" selected="selected">3</option>
+							<option value="3">3</option>
 							<option value="5">5</option>
-							<option value="10">10</option>
+							<option value="10" selected="selected">10</option>
 						</select>条记录
 					</div>
 					<input type="text"class="form-group form-control" readonly="readonly" id="displayPage">

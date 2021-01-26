@@ -15,17 +15,19 @@ import java.util.Set;
  * @version 创建时间：2021/1/26
  */
 public class StudentJedis {
-    private Jedis jedis = new Jedis("39.102.34.91", 6379);
+    private static final String STUDENT = "student";
+    private static final String REDIS_HOST = "39.102.34.91";
+    private Jedis jedis = new Jedis(REDIS_HOST, 6379);
     private ObjectMapper om = new ObjectMapper();
 
     public Boolean insertStudent(Student student) throws JsonProcessingException {
-        jedis.zadd("student", student.getAvgScore(), om.writeValueAsString(student));
+        jedis.zadd(STUDENT, student.getAvgScore(), om.writeValueAsString(student));
         return true;
     }
 
     public List<Student> listStudent(Integer pageSize, Integer pageNum) throws IOException {
         List<Student> students = new ArrayList<>();
-        Set set = jedis.zrevrangeByScore("student", 100, 0, pageSize * (pageNum - 1), pageSize * pageNum);
+        Set set = jedis.zrevrangeByScore(STUDENT, 100, 0, pageSize * (pageNum - 1), pageSize * pageNum);
         for (Object obj : set) {
             Student student = om.readValue(obj.toString(), Student.class);
             students.add(student);
@@ -34,12 +36,12 @@ public class StudentJedis {
     }
 
     public Boolean delete(Student student) throws JsonProcessingException {
-        jedis.zrem("student", om.writeValueAsString(student));
+        jedis.zrem(STUDENT, om.writeValueAsString(student));
         return true;
     }
 
     public Student queryStudentByIdAndScore(String id, Integer avgScore) throws IOException {
-        Set set = jedis.zrange("student", avgScore, avgScore);
+        Set set = jedis.zrange(STUDENT, avgScore, avgScore);
         for (Object obj : set) {
             Student student = om.readValue(obj.toString(), Student.class);
             if (student.getId().equals(id)) {

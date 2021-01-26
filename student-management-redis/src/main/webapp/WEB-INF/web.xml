@@ -4,4 +4,12 @@
 
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
+  <servlet>
+    <servlet-name>studentManagementServlet</servlet-name>
+    <servlet-class>person.liufan.student.management.servlet.StudentManagementServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>studentManagementServlet</servlet-name>
+    <url-pattern>/studentManagement</url-pattern>
+  </servlet-mapping>
 </web-app>
