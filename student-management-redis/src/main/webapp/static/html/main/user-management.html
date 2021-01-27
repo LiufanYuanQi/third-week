@@ -11,6 +11,7 @@
 <script type="text/javascript" src="../../js/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
 <script type="text/javascript" src="../../js/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
 <script type="text/javascript" src="../../js/laydate/laydate.js"></script>
+<script type="text/javascript" src="../../js/layer/layer.js"></script>
 
 <script type="text/javascript">
 	$(function () {
@@ -27,7 +28,6 @@
 				, value: '2020-1-27'
 			});
 			$("#addStudentModal").modal("show");
-
 		});
 		/**
 		 * 信息填写完毕，点击提交进行表单验证，验证成功提交数据
@@ -37,7 +37,7 @@
 		 birthday: 2020-01-27
 		 */
 		$("#add-submitBtn").click(function () {
-			if (true) {
+			if (addFormCheck()) {
 				$.ajax({
 					url: "/student_management/studentManagement",
 					type: "post",
@@ -50,16 +50,22 @@
 					},
 					success(data) {
 						if ($.parseJSON(data)) {
-							alert("学生添加成功");
+							layer.msg('学生添加成功',{
+								offset:"t"
+							});
 							$("#addStudentModal").modal("hide");
 						} else {
-							alert("学生已经存在");
+							layer.msg('学生已经存在',{
+								offset:"t"
+							});
 						}
 						getForm();
 					}
 				});
 			} else {
-				alert("请重新修改信息");
+				layer.msg('请重新修改信息',{
+					offset:"t"
+				});
 			}
 		});
 		/**
@@ -71,9 +77,13 @@
 		 */
 		$("#editStudent").click(function () {
 			if ($("input[name=check]:checked").length == 0) {
-				alert("请选择要修改的数据");
+				layer.msg('请选择要修改的数据',{
+					offset:"t"
+				});
 			} else if ($("input[name=check]:checked").length != 1) {
-				alert("只能修改单条数据");
+				layer.msg('只能修改单条数据',{
+					offset:"t"
+				});
 			} else {
 				/*
 				* 通过id获取这条记录的详细信息，并将结果填充到
@@ -115,7 +125,7 @@
 		 * 信息填写完毕，点击提交进行表单验证，验证成功提交数据
 		 */
 		$("#edit-submitBtn").click(function () {
-			if (true) {
+			if (editFormCheck()) {
 				$.ajax({
 					url: "/student_management/studentManagement",
 					type: "post",
@@ -131,23 +141,31 @@
 					},
 					success(data) {
 						if ($.parseJSON(data)) {
-							alert("学生修改成功");
+							layer.msg('学生修改成功',{
+								offset:"t"
+							});
 							$("#editStudentModal").modal("hide");
 						} else {
-							alert("学生修改失败");
+							layer.msg('学生修改失败',{
+								offset:"t"
+							});
 						}
 						getForm();
 					}
 				});
 			} else {
-				alert("请重新修改信息");
+				layer.msg('请重新修改信息',{
+					offset:"t"
+				});
 			}
 		});
 
 		$("#deleteStudent").click(function () {
 			var deleteList = "";
 			if ($("input[name=check]:checked").length == 0) {
-				alert("请选择删除的数据");
+				layer.msg('请选择删除的数据',{
+					offset:"t"
+				});
 				return;
 			} else {
 				for (var i = 0; i < $("input[name=check]:checked").length; i++) {
@@ -167,7 +185,9 @@
 				url: "/student_management/studentManagement",
 				type: "post",
 				success() {
-					alert("删除学生成功");
+					layer.msg('删除学生成功',{
+						offset:"t"
+					});
 					getForm();
 					$("#selectAll").prop("checked", false);
 				}
@@ -268,11 +288,92 @@
 			let index = $("#currentPage").val() - 1;
 			$(`#page li[value=${index}]`).addClass("active");
 		}
+
+		/**
+		 * 表单校验
+		 */
+		$("#add-name").blur(function () {
+			if ($("#add-name").val() != '' && $("#add-name").val() != null) {
+				let isTrue = /^[\u4e00-\u9fa5]{0,}$/;
+				if (!isTrue.test($("#add-name").val())) {
+					layer.msg('请输入真实姓名',{
+						offset:"75px"
+					});
+
+				}
+			}
+		})
+		$("#add-avgScore").blur(function () {
+			if ($("#add-avgScore").val() != '' && $("#add-avgScore").val() != null) {
+				let isTrue = /^(?:[1-9]?\d|100)$/;
+				if (!isTrue.test($("#add-avgScore").val())) {
+					layer.msg('请输入正确成绩',{
+						offset:"75px"
+					});
+				}
+			}
+		})
+		$("#edit-name").blur(function () {
+			if ($("#edit-name").val() != '' && $("#edit-name").val() != null) {
+				let isTrue = /^[\u4e00-\u9fa5]{0,}$/;
+				if (!isTrue.test($("#edit-name").val())) {
+					layer.msg('请输入真实姓名',{
+						offset:"75px"
+					});
+
+				}
+			}
+		})
+		$("#edit-avgScore").blur(function () {
+			if ($("#edit-avgScore").val() != '' && $("#edit-avgScore").val() != null) {
+				let isTrue = /^(?:[1-9]?\d|100)$/;
+				if (!isTrue.test($("#edit-avgScore").val())) {
+					layer.msg('请输入正确成绩',{
+						offset:"75px"
+					});
+				}
+			}
+		})
+		function addFormCheck() {
+			let isTrue = /^[\u4e00-\u9fa5]{0,}$/;
+			if (!isTrue.test($("#add-name").val())) {
+				layer.msg('请输入真实姓名',{
+					offset:"75px"
+				});
+				return false;
+			}
+			isTrue = /^(?:[1-9]?\d|100)$/;
+			if (!isTrue.test($("#add-avgScore").val())) {
+				layer.msg('请输入正确成绩',{
+					offset:"75px"
+				});
+				return false;
+			}
+			return true;
+		}
+		function editFormCheck() {
+			let isTrue = /^[\u4e00-\u9fa5]{0,}$/;
+			if (!isTrue.test($("#edit-name").val())) {
+				layer.msg('请输入真实姓名',{
+					offset:"75px"
+				});
+				return false;
+			}
+			isTrue = /^(?:[1-9]?\d|100)$/;
+			if (!isTrue.test($("#edit-avgScore").val())) {
+				layer.msg('请输入正确成绩',{
+					offset:"75px"
+				});
+				return false;
+			}
+			return true;
+		}
 	})
 
 </script>
 </head>
 <body>
+
 	<!-- 添加学生信息的模态窗口 -->
 	<div class="modal fade" id="addStudentModal" role="dialog">
 		<div class="modal-dialog" role="document" style="width: 45%;">

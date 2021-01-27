@@ -18,7 +18,7 @@ import java.util.UUID;
  */
 public class StudentServiceImpl implements StudentService {
 
-    private StudentJedis jedis = new StudentJedis();
+    private final StudentJedis jedis = new StudentJedis();
 
     @Override
     public Boolean save(StudentVO vo) throws ParseException, JsonProcessingException {
