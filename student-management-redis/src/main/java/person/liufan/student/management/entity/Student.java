@@ -32,6 +32,10 @@ public class Student {
      * 学生平均分
      */
     private Integer avgScore;
+    /**
+     * String类型的生日
+     */
+    private String birthdayString;
 
     public String getId() {
         return id;
@@ -73,6 +77,14 @@ public class Student {
         this.avgScore = avgScore;
     }
 
+    public String getBirthdayString() {
+        return birthdayString;
+    }
+
+    public void setBirthdayString(String birthdayString) {
+        this.birthdayString = birthdayString;
+    }
+
     @Override
     public String toString() {
         return "Student{" +
@@ -81,6 +93,7 @@ public class Student {
                 ", birthday=" + birthday +
                 ", description='" + description + '\'' +
                 ", avgScore=" + avgScore +
+                ", birthdayString='" + birthdayString + '\'' +
                 '}';
     }
 }

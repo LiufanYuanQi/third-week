@@ -51,7 +51,7 @@
 					success(data) {
 						if ($.parseJSON(data)) {
 							alert("学生添加成功");
-							$("#addUserModal").modal("hide");
+							$("#addStudentModal").modal("hide");
 						} else {
 							alert("学生已经存在");
 						}
@@ -92,13 +92,15 @@
 					*
 					* */
 					success(data) {
-						$("#edit-id").val();
-						$("#edit-name").val();
-						$("#edit-description").val();
-						$("#edit-avgScore").val();
+						var obj = $.parseJSON(data);
+						var time = obj.birthdayString;
+						$("#edit-id").val(obj.id);
+						$("#edit-name").val(obj.name);
+						$("#edit-description").val(obj.description);
+						$("#edit-avgScore").val(obj.avgScore);
 						laydate.render({
 							elem: '#edit-date',
-							value: ''
+							value: time
 						});
 					}
 				})
@@ -130,7 +132,7 @@
 					success(data) {
 						if ($.parseJSON(data)) {
 							alert("学生修改成功");
-							$("#addUserModal").modal("hide");
+							$("#editStudentModal").modal("hide");
 						} else {
 							alert("学生修改失败");
 						}
@@ -224,11 +226,14 @@
 				url: "/student_management/studentManagement",
 				success(data) {
 					$("#detailTbl").empty();
-					$.each($.parseJSON(data).data, function (i, n) {
+					$.each($.parseJSON(data).list, function (i, n) {
 						$("#detailTbl").append("<tr class=\"active\">\n" +
 								"<td><input name='check' value='" + n.id + "' type=\"checkbox\" /></td>\n" +
 								"<td>" + n.id + "</td>\n" +
-								"<td>" + n.tbBookstoreUserCreateTime + "</td>\n" +
+								"<td>" + n.name + "</td>\n" +
+								"<td>" + n.birthdayString + "</td>\n" +
+								"<td>" + n.description + "</td>\n" +
+								"<td>" + n.avgScore + "</td>\n" +
 								"</tr>");
 					});
 					$("#page").empty();
@@ -408,7 +413,7 @@
 			<nav aria-label="Page navigation">
 				<div style="width: 300px">
 					<input type="hidden" id="currentPage" value="1">
-					<input type="hidden" id="currentPageSize" value="3">
+					<input type="hidden" id="currentPageSize" value="10">
 					<div style="width: 130px; position: relative; top: 80px">
 						每页
 						<select id="pageSizes" data-live-search="true" name="page" >

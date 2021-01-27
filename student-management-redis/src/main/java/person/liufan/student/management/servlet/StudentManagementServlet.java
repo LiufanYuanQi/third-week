@@ -1,5 +1,9 @@
 package person.liufan.student.management.servlet;
 
+import person.liufan.student.management.entity.Student;
+import person.liufan.student.management.service.StudentService;
+import person.liufan.student.management.service.impl.StudentServiceImpl;
+import person.liufan.student.management.util.MyPrintOut;
 import person.liufan.student.management.vo.StudentVO;
 
 import javax.servlet.ServletException;
@@ -7,6 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -14,7 +20,7 @@ import java.util.UUID;
  * @version 创建时间：2021/1/26
  */
 public class StudentManagementServlet extends HttpServlet {
-    /*private StudentService studentService = new StudentServiceImpl();*/
+    private StudentService studentService = new StudentServiceImpl();
     private static final String TYPE = "type";
     private static final String TYPE_SAVE = "save";
     private static final String TYPE_QUERY_BY_ID = "queryById";
@@ -34,25 +40,80 @@ public class StudentManagementServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String type = request.getParameter(TYPE);
+        StudentVO vo = toStudentVO(request);
+        /**
+         * type: save
+         * name: 刘凡
+         * description: liufanTest
+         * avgScore: 150
+         * birthday: 2020-01-27
+         */
         if (TYPE_SAVE.equals(type)) {
-            System.out.println(toStudentVO(request));
+            Boolean flag = null;
+            try {
+                flag = studentService.save(vo);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            MyPrintOut.printJson(response, flag);
         }
+        /**
+         * type: update
+         * id: xxx
+         * name: 刘凡
+         * description: liufanTest
+         * avgScore: 40
+         * birthday: 2020-01-27
+         * pageSize: 10
+         * pageNum: 1
+         */
         if (TYPE_UPDATE.equals(type)) {
-            System.out.println(toStudentVO(request));
+            Boolean flag = null;
+            try {
+                flag = studentService.updateById(vo);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            MyPrintOut.printJson(response, flag);
         }
+        /**
+         * type: delete
+         * deleteList: x&x&x
+         * pageSize: 10
+         * pageNum: 1
+         */
         if (TYPE_DELETE.equals(type)) {
-            System.out.println(toStudentVO(request));
+            Boolean flag = studentService.deleteById(vo);
+            MyPrintOut.printJson(response, flag);
         }
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String type = request.getParameter(TYPE);
+        StudentVO vo = toStudentVO(request);
+        /**
+         * type: queryById
+         * id: 403e4e49-2b31-435a-a4d8-882806a81fde
+         * pageSize: 10
+         * pageNum: 1
+         */
         if (TYPE_QUERY_BY_ID.equals(type)) {
-            System.out.println(toStudentVO(request));
+            Student student = studentService.queryById(vo);
+            MyPrintOut.printJson(response, student);
         }
+        /**
+         * type: listDetail
+         * pageNum: 1
+         * pageSize: 3
+         */
         if (TYPE_LIST_DETAIL.equals(type)) {
-            System.out.println(toStudentVO(request));
+            List<Student> list = studentService.listStudent(vo);
+            String count = studentService.queryCount();
+            StudentVO rest = new StudentVO();
+            rest.setList(list);
+            rest.setCount(count);
+            MyPrintOut.printJson(response, rest);
         }
     }
 

@@ -1,5 +1,9 @@
 package person.liufan.student.management.vo;
 
+import person.liufan.student.management.entity.Student;
+
+import java.util.List;
+
 /**
  * @author liufan E-mail:fan.liu@biz-united.com.cn
  * @version 创建时间：2021/1/26
@@ -41,6 +45,10 @@ public class StudentVO {
      * 删除id
      */
     private String deleteList;
+    /**
+     * 分页学生列表
+     */
+    private List<Student> list;
 
     public String getId() {
         return id;
@@ -114,6 +122,14 @@ public class StudentVO {
         this.deleteList = deleteList;
     }
 
+    public List<Student> getList() {
+        return list;
+    }
+
+    public void setList(List<Student> list) {
+        this.list = list;
+    }
+
     @Override
     public String toString() {
         return "StudentVO{" +
@@ -126,6 +142,7 @@ public class StudentVO {
                 ", pageNum='" + pageNum + '\'' +
                 ", count='" + count + '\'' +
                 ", deleteList='" + deleteList + '\'' +
+                ", list=" + list +
                 '}';
     }
 }
